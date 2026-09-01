@@ -12,6 +12,7 @@ class Question < ApplicationRecord
     foreign_key: :follow_up_question_id,
     inverse_of: :follow_up_question,
     dependent: :destroy
+  has_many :session_questions, dependent: :restrict_with_exception
 
   enum :difficulty, DIFFICULTIES.index_by(&:itself), validate: true
   enum :priority, PRIORITIES.index_by(&:itself), validate: true

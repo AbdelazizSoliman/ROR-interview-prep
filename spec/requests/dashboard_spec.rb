@@ -15,7 +15,8 @@ RSpec.describe "Dashboard", type: :request do
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("Welcome back, #{user.email}")
-    expect(response.body).to include("Questions reviewed")
-    expect(response.body).to include("Due today")
+    expect(response.body).to include("Start Core Mid-Level Practice")
+    expect(response.body).not_to include("Mastered")
+    expect(response.body).not_to include("Due today")
   end
 end

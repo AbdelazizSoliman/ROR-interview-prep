@@ -1,0 +1,22 @@
+<main class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+  <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <p class="text-sm font-semibold uppercase tracking-widest text-emerald-700">Session complete</p>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight text-slate-950">Core Mid-Level Practice</h1>
+    <p class="mt-4 text-lg text-slate-700"><%= @study_session.answered_count %> / <%= @study_session.question_count %> questions answered</p>
+    <dl class="mt-6 grid gap-4 text-sm text-slate-600 sm:grid-cols-2">
+      <div><dt class="font-medium text-slate-900">Started</dt><dd class="mt-1"><%= l(@study_session.started_at, format: :long) %></dd></div>
+      <div><dt class="font-medium text-slate-900">Completed</dt><dd class="mt-1"><%= l(@study_session.completed_at, format: :long) %></dd></div>
+    </dl>
+
+    <div class="mt-8 border-t border-slate-200 pt-6">
+      <h2 class="text-lg font-semibold text-slate-950">Questions practiced</h2>
+      <ol class="mt-4 list-decimal space-y-2 pl-5 text-slate-700">
+        <% @study_session.session_questions.each do |session_question| %>
+          <li><%= session_question.question.short_title.presence || truncate(session_question.question.prompt, length: 90) %></li>
+        <% end %>
+      </ol>
+    </div>
+
+    <%= link_to "Return to Dashboard", dashboard_path, class: "mt-8 inline-flex rounded-md bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-700" %>
+  </section>
+</main>
