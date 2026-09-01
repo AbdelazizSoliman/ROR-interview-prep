@@ -48,4 +48,19 @@ RSpec.describe Interview::StudySessions::Continue do
     expect(result.completed).to be(true)
     expect(question.reload.reviewed_at).to be_present
   end
+
+  it "does not schedule the same question twice" do
+    session = create(:study_session, question_count: 1)
+    question = create(:session_question, study_session: session, answered_at: Time.current)
+    create(:evaluation, answer_attempt: create(:answer_attempt, session_question: question), score: 4)
+
+    described_class.call(study_session: session, session_question: question)
+    schedule = ReviewSchedule.find_by!(user: session.user, question: question.question)
+    attempts = schedule.attempts_count
+    interval = schedule.interval_days
+    described_class.call(study_session: session, session_question: question)
+
+    expect(schedule.reload.attempts_count).to eq(attempts)
+    expect(schedule.interval_days).to eq(interval)
+  end
 end

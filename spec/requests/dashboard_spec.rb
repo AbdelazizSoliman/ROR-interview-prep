@@ -17,6 +17,17 @@ RSpec.describe "Dashboard", type: :request do
     expect(response.body).to include("Welcome back, #{user.email}")
     expect(response.body).to include("Start Core Mid-Level Practice")
     expect(response.body).not_to include("Mastered")
-    expect(response.body).not_to include("Due today")
+    expect(response.body).to include("No reviews due right now.")
+  end
+
+  it "shows due review count and daily review action" do
+    user = create(:user)
+    sign_in user
+    question = create(:question)
+    create(:review_schedule, user:, question:, next_review_at: 1.hour.ago)
+
+    get dashboard_path
+
+    expect(response.body).to include("Due today: 1", "Start Daily Review")
   end
 end

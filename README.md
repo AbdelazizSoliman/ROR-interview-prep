@@ -75,6 +75,16 @@ Set `INTERVIEW_EVALUATOR=deterministic` for local development without an API
 key. AI evaluations use the configured model and persist only normalized
 feedback and evaluator metadata, not prompts or raw provider responses.
 
+## Review scheduling
+
+Continuing an evaluated question creates or updates its per-user
+`ReviewSchedule`. Core Mid practice seeds schedules; Daily Review selects up to
+10 active questions whose `next_review_at` is due, ordered by oldest due date,
+weakest score, then deterministic question order. Scheduling uses deterministic
+day intervals; mastery and readiness metrics are not implemented yet.
+Intervals are intentionally uncapped in Phase 6; repeated score-5 reviews grow
+14 → 35 → 88 → 220 → ... until later mastery tuning introduces a product limit.
+
 ## Question bank
 
 Question-bank source files live under `db/question_bank/`. Import all YAML files with:

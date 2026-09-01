@@ -8,6 +8,8 @@ module Interview
       MAX_QUESTIONS = 10
 
       def self.call(user:, session_type: "core_mid")
+        return CreateDailyReview.call(user:) if session_type.to_s == "daily_review"
+
         new(user:, session_type:).call
       end
 

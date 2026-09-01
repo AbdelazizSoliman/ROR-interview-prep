@@ -1,5 +1,5 @@
 class StudySession < ApplicationRecord
-  SESSION_TYPES = %w[core_mid].freeze
+  SESSION_TYPES = %w[core_mid daily_review].freeze
   STATUSES = %w[active completed abandoned].freeze
 
   belongs_to :user

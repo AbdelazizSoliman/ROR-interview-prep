@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_01_170100) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_01_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,6 +101,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_170100) do
     t.check_constraint "question_type::text = ANY (ARRAY['knowledge'::character varying, 'comparison'::character varying, 'debugging'::character varying, 'production_scenario'::character varying, 'architecture'::character varying, 'code_reasoning'::character varying, 'sql'::character varying]::text[])", name: "questions_type_allowed"
   end
 
+  create_table "review_schedules", force: :cascade do |t|
+    t.integer "attempts_count", default: 0, null: false
+    t.decimal "average_score", precision: 4, scale: 2
+    t.integer "best_score"
+    t.integer "consecutive_successes", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.integer "interval_days", default: 0, null: false
+    t.datetime "last_reviewed_at"
+    t.integer "last_score"
+    t.datetime "next_review_at"
+    t.bigint "question_id", null: false
+    t.string "state", null: false
+    t.integer "successful_reviews", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["question_id"], name: "index_review_schedules_on_question_id"
+    t.index ["user_id", "next_review_at"], name: "index_review_schedules_on_user_id_and_next_review_at"
+    t.index ["user_id", "question_id"], name: "index_review_schedules_on_user_id_and_question_id", unique: true
+    t.index ["user_id"], name: "index_review_schedules_on_user_id"
+    t.check_constraint "(last_score IS NULL OR last_score >= 0 AND last_score <= 5) AND (best_score IS NULL OR best_score >= 0 AND best_score <= 5) AND (average_score IS NULL OR average_score >= 0::numeric AND average_score <= 5::numeric)", name: "review_schedules_scores_allowed"
+    t.check_constraint "attempts_count >= 0 AND successful_reviews >= 0 AND consecutive_successes >= 0 AND interval_days >= 0", name: "review_schedules_counters_nonnegative"
+  end
+
   create_table "session_questions", force: :cascade do |t|
     t.datetime "answered_at"
     t.datetime "created_at", null: false
@@ -128,7 +151,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_170100) do
     t.index ["user_id", "session_type"], name: "index_study_sessions_on_unique_active_type", unique: true, where: "((status)::text = 'active'::text)"
     t.index ["user_id"], name: "index_study_sessions_on_user_id"
     t.check_constraint "question_count > 0", name: "study_sessions_question_count_positive"
-    t.check_constraint "session_type::text = 'core_mid'::text", name: "study_sessions_type_allowed"
+    t.check_constraint "session_type::text = ANY (ARRAY['core_mid'::character varying::text, 'daily_review'::character varying::text])", name: "study_sessions_type_allowed"
     t.check_constraint "status::text = ANY (ARRAY['active'::character varying, 'completed'::character varying, 'abandoned'::character varying]::text[])", name: "study_sessions_status_allowed"
   end
 
@@ -162,6 +185,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_170100) do
   add_foreign_key "question_follow_ups", "questions"
   add_foreign_key "question_follow_ups", "questions", column: "follow_up_question_id"
   add_foreign_key "questions", "topics"
+  add_foreign_key "review_schedules", "questions"
+  add_foreign_key "review_schedules", "users"
   add_foreign_key "session_questions", "questions"
   add_foreign_key "session_questions", "study_sessions"
   add_foreign_key "study_sessions", "users"

@@ -19,7 +19,11 @@ module Interview
           study_session.lock!
           session_question.lock!
           validate_context! unless session_question.reviewed_at.present?
-          session_question.update!(reviewed_at: Time.current) if session_question.reviewed_at.nil?
+          if session_question.reviewed_at.nil?
+            evaluation = session_question.submitted_answer_attempt.evaluation
+            ReviewScheduling::Update.call(user: study_session.user, question: session_question.question, evaluation:)
+            session_question.update!(reviewed_at: Time.current)
+          end
           next_question = study_session.current_session_question
           completed = next_question.nil?
           study_session.update!(status: "completed", completed_at: Time.current) if completed && study_session.active?

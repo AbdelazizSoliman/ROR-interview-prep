@@ -2,10 +2,10 @@ class StudySessionsController < ApplicationController
   before_action :authenticate_user!
 
   def create
-    result = Interview::StudySessions::Create.call(user: current_user)
+    result = Interview::StudySessions::Create.call(user: current_user, session_type: params.fetch(:session_type, "core_mid"))
     message = result.resumed ? "Resuming your active practice session." : "Practice session started."
     redirect_to study_session_path(result.study_session), notice: message
-  rescue Interview::StudySessions::Create::NoQuestionsAvailable => error
+  rescue Interview::StudySessions::Create::NoQuestionsAvailable, Interview::StudySessions::CreateDailyReview::NoReviewsDue => error
     redirect_to dashboard_path, alert: error.message
   end
 

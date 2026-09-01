@@ -13,6 +13,7 @@ class Question < ApplicationRecord
     inverse_of: :follow_up_question,
     dependent: :destroy
   has_many :session_questions, dependent: :restrict_with_exception
+  has_many :review_schedules, dependent: :restrict_with_exception
 
   enum :difficulty, DIFFICULTIES.index_by(&:itself), validate: true
   enum :priority, PRIORITIES.index_by(&:itself), validate: true

@@ -3,6 +3,7 @@ require "rails_helper"
 RSpec.describe StudySession, type: :model do
   it "accepts the supported session type and statuses" do
     expect(build(:study_session, session_type: "core_mid", status: "active")).to be_valid
+    expect(build(:study_session, session_type: "daily_review", status: "active")).to be_valid
     expect(build(:study_session, session_type: "random", status: "active")).not_to be_valid
     expect(build(:study_session, status: "paused")).not_to be_valid
   end
