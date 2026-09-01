@@ -11,7 +11,12 @@ class AnswerAttemptsController < ApplicationController
     )
 
     if result.success?
-      redirect_after_success(result)
+      begin
+        Interview::EvaluateAnswer.call(answer_attempt: result.answer_attempt)
+        redirect_to study_session_session_question_evaluation_path(@study_session, @session_question)
+      rescue Interview::EvaluateAnswer::Error => error
+        redirect_to study_session_session_question_evaluation_path(@study_session, @session_question), alert: error.message
+      end
     else
       @question = @session_question.question
       @answer_attempt = result.answer_attempt
@@ -25,13 +30,5 @@ class AnswerAttemptsController < ApplicationController
 
   def answer_attempt_params
     params.expect(answer_attempt: [ :answer_text ])
-  end
-
-  def redirect_after_success(result)
-    if result.completed
-      redirect_to study_session_path(@study_session), notice: "Session complete."
-    else
-      redirect_to study_session_session_question_path(@study_session, result.next_session_question)
-    end
   end
 end

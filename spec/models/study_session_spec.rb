@@ -20,13 +20,14 @@ RSpec.describe StudySession, type: :model do
     expect(build(:study_session, :completed)).to be_valid
   end
 
-  it "returns the first unanswered session question" do
+  it "returns the first unreviewed session question" do
     session = create(:study_session, question_count: 2)
-    answered = create(:session_question, study_session: session, position: 0, answered_at: Time.current)
+    answered = create(:session_question, study_session: session, position: 0, answered_at: Time.current, reviewed_at: Time.current)
     current = create(:session_question, study_session: session, position: 1)
 
     expect(session.current_session_question).to eq(current)
     expect(session.answered_count).to eq(1)
+    expect(session.reviewed_count).to eq(1)
     expect(answered).to be_answered_at
   end
 end

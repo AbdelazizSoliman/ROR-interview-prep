@@ -57,19 +57,19 @@ RSpec.describe "Study sessions", type: :request do
       expect(session_question.reload.answered_at).to be_nil
     end
 
-    it "stores an answer and redirects to the next question" do
+    it "stores an answer and redirects to its evaluation" do
       session = create_session_with_questions(user:, count: 2)
       first, second = session.session_questions.to_a
 
       post study_session_session_question_answer_path(session, first),
         params: { answer_attempt: { answer_text: "My stored answer" } }
 
-      expect(response).to redirect_to(study_session_session_question_path(session, second))
+      expect(response).to redirect_to(study_session_session_question_evaluation_path(session, first))
       expect(first.reload.submitted_answer_attempt.answer_text).to eq("My stored answer")
       expect(first.answered_at).to be_present
     end
 
-    it "completes after the final answer and renders a basic summary" do
+    it "completes after the final evaluation is continued and renders a basic summary" do
       session = create_session_with_questions(user:, count: 1)
       session_question = session.session_questions.first
 
@@ -78,9 +78,12 @@ RSpec.describe "Study sessions", type: :request do
       follow_redirect!
 
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Your answer")
+      post study_session_session_question_continue_path(session, session_question)
+      follow_redirect!
+
       expect(response.body).to include("Session complete")
       expect(response.body).to include("1 / 1 questions answered")
-      expect(response.body).not_to include("score")
       expect(session.reload).to be_completed
       expect(session.completed_at).to be_present
     end

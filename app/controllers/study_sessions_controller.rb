@@ -13,7 +13,12 @@ class StudySessionsController < ApplicationController
     @study_session = current_user.study_sessions.includes(session_questions: { question: :topic }).find(params[:id])
 
     if @study_session.active?
-      redirect_to study_session_session_question_path(@study_session, @study_session.current_session_question)
+      current_question = @study_session.current_session_question
+      if current_question.answered_at.present?
+        redirect_to study_session_session_question_evaluation_path(@study_session, current_question)
+      else
+        redirect_to study_session_session_question_path(@study_session, current_question)
+      end
     elsif !@study_session.completed?
       redirect_to dashboard_path, alert: "This practice session is not active."
     end

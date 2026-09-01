@@ -6,12 +6,14 @@ class SessionQuestionsController < ApplicationController
     @session_question = @study_session.session_questions.includes(:answer_attempts, question: :topic).find(params[:id])
 
     current_question = @study_session.current_session_question
+    if @session_question.answered_at.present?
+      return redirect_to study_session_session_question_evaluation_path(@study_session, @session_question)
+    end
     if @session_question.answered_at.nil? && current_question != @session_question
       return redirect_to study_session_session_question_path(@study_session, current_question), alert: "Questions must be answered in order."
     end
 
     @question = @session_question.question
-    @submitted_answer_attempt = @session_question.submitted_answer_attempt
     @answer_attempt = AnswerAttempt.new
   end
 end

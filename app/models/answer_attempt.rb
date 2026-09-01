@@ -6,4 +6,6 @@ class AnswerAttempt < ApplicationRecord
   attr_readonly :session_question_id, :answer_text, :submitted_at
 
   delegate :study_session, :question, :user, to: :session_question
+
+  has_one :evaluation, dependent: :destroy
 end

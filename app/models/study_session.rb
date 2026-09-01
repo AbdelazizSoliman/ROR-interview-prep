@@ -15,11 +15,15 @@ class StudySession < ApplicationRecord
   validate :completed_at_matches_status
 
   def current_session_question
-    session_questions.find_by(answered_at: nil)
+    session_questions.find_by(reviewed_at: nil)
   end
 
   def answered_count
     session_questions.where.not(answered_at: nil).count
+  end
+
+  def reviewed_count
+    session_questions.where.not(reviewed_at: nil).count
   end
 
   private

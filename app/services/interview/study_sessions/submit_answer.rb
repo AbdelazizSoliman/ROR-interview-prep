@@ -3,7 +3,7 @@ module Interview
     class SubmitAnswer
       class InvalidSubmission < StandardError; end
 
-      Result = Data.define(:answer_attempt, :next_session_question, :completed) do
+      Result = Data.define(:answer_attempt) do
         def success?
           answer_attempt.persisted?
         end
@@ -30,15 +30,12 @@ module Interview
           submitted_at = Time.current
           answer_attempt = session_question.answer_attempts.build(answer_text:, submitted_at:)
           unless answer_attempt.save
-            result = Result.new(answer_attempt:, next_session_question: session_question, completed: false)
+            result = Result.new(answer_attempt:)
             raise ActiveRecord::Rollback
           end
 
           session_question.update!(answered_at: submitted_at)
-          next_question = study_session.current_session_question
-          completed = next_question.nil?
-          study_session.update!(status: "completed", completed_at: submitted_at) if completed
-          result = Result.new(answer_attempt:, next_session_question: next_question, completed:)
+          result = Result.new(answer_attempt:)
         end
 
         result

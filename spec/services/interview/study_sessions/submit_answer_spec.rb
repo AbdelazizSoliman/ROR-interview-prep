@@ -1,14 +1,14 @@
 require "rails_helper"
 
 RSpec.describe Interview::StudySessions::SubmitAnswer do
-  it "stores the exact answer and advances atomically" do
+  it "stores the exact answer without advancing" do
     session, first, second = session_with_questions(2)
     text = "  My answer\nwith reasoning.  "
 
     result = described_class.call(study_session: session, session_question: first, answer_text: text)
 
     expect(result).to be_success
-    expect(result.next_session_question).to eq(second)
+    expect(second.reload.answered_at).to be_nil
     expect(first.reload.submitted_answer_attempt.answer_text).to eq(text)
     expect(first.answered_at).to eq(first.submitted_answer_attempt.submitted_at)
     expect(session.reload).to be_active
@@ -26,14 +26,14 @@ RSpec.describe Interview::StudySessions::SubmitAnswer do
     expect(AnswerAttempt.count).to be_zero
   end
 
-  it "completes the session only after the final answer persists" do
+  it "does not complete the session when the final answer is only submitted" do
     session, question = session_with_questions(1)
 
     result = described_class.call(study_session: session, session_question: question, answer_text: "Final answer")
 
-    expect(result.completed).to be(true)
-    expect(session.reload).to be_completed
-    expect(session.completed_at).to eq(question.reload.answered_at)
+    expect(result).to be_success
+    expect(session.reload).to be_active
+    expect(question.reload.reviewed_at).to be_nil
   end
 
   it "rejects duplicate submissions without changing the stored answer" do

@@ -6,6 +6,8 @@ Rails.application.routes.draw do
   resources :study_sessions, only: %i[create show] do
     resources :session_questions, path: "questions", only: :show do
       resource :answer, only: :create, controller: "answer_attempts"
+      resource :evaluation, only: %i[show create], controller: "evaluations"
+      resource :continue, only: :create, controller: "session_progressions"
     end
   end
 

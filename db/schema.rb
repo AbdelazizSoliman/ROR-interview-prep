@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_01_142658) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_01_154717) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -22,6 +22,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_142658) do
     t.datetime "updated_at", null: false
     t.index ["session_question_id"], name: "index_answer_attempts_on_session_question_id"
     t.check_constraint "btrim(answer_text) <> ''::text", name: "answer_attempts_text_not_blank"
+  end
+
+  create_table "evaluations", force: :cascade do |t|
+    t.bigint "answer_attempt_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "evaluated_at", null: false
+    t.string "evaluator_type", null: false
+    t.jsonb "matched_concepts", default: [], null: false
+    t.jsonb "misconceptions", default: [], null: false
+    t.jsonb "missing_concepts", default: [], null: false
+    t.integer "score", null: false
+    t.text "stronger_answer", null: false
+    t.text "summary"
+    t.datetime "updated_at", null: false
+    t.index ["answer_attempt_id"], name: "index_evaluations_on_answer_attempt_id", unique: true
+    t.check_constraint "jsonb_typeof(matched_concepts) = 'array'::text", name: "evaluations_matched_concepts_array"
+    t.check_constraint "jsonb_typeof(misconceptions) = 'array'::text", name: "evaluations_misconceptions_array"
+    t.check_constraint "jsonb_typeof(missing_concepts) = 'array'::text", name: "evaluations_missing_concepts_array"
+    t.check_constraint "score >= 0 AND score <= 5", name: "evaluations_score_allowed"
   end
 
   create_table "question_concepts", force: :cascade do |t|
@@ -84,6 +103,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_142658) do
     t.datetime "created_at", null: false
     t.integer "position", null: false
     t.bigint "question_id", null: false
+    t.datetime "reviewed_at"
     t.bigint "study_session_id", null: false
     t.datetime "updated_at", null: false
     t.index ["question_id"], name: "index_session_questions_on_question_id"
@@ -134,6 +154,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_142658) do
   end
 
   add_foreign_key "answer_attempts", "session_questions"
+  add_foreign_key "evaluations", "answer_attempts"
   add_foreign_key "question_concepts", "questions"
   add_foreign_key "question_follow_ups", "questions"
   add_foreign_key "question_follow_ups", "questions", column: "follow_up_question_id"
