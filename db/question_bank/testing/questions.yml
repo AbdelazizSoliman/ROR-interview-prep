@@ -1,0 +1,43 @@
+version: 1
+topic:
+  name: Testing
+  slug: testing
+  description: Test design and reliable feedback.
+  position: 4
+  active: true
+questions:
+  - stable_key: testing.doubles.when_mocking_hurts
+    topic: testing
+    short_title: When mocking becomes harmful
+    prompt: >-
+      When do mocks and stubs make a Rails test suite less trustworthy? Explain how you decide what to fake and how to
+      retain confidence at integration boundaries.
+    difficulty: strong_mid
+    priority: important
+    question_type: architecture
+    reference_answer: >-
+      Test doubles are useful at slow, nondeterministic, or externally controlled boundaries, but become harmful when a
+      test mirrors implementation calls instead of observable behavior. Overspecified interaction tests resist refactoring,
+      can encode an incorrect collaborator contract, and may pass while real serialization, SQL, callbacks, or network
+      behavior fails. Prefer state/output assertions for owned code, use verifying doubles or contract-shaped fakes at
+      boundaries, and retain focused integration tests against the real adapter or service sandbox. Fake time, randomness,
+      and failure modes deliberately rather than mocking every object in the call chain.
+    explanation: >-
+      The goal is controlled tests without replacing the system under test with expectations about its own implementation.
+    common_mistakes: >-
+      Declaring all mocks bad; mocking Active Record in model behavior tests; using non-verifying doubles with invented APIs;
+      having only end-to-end tests or only isolated unit tests.
+    active: true
+    position: 0
+    concepts:
+      - concept: Assert observable behavior rather than incidental call sequences.
+        weight: 1.5
+      - concept: Doubles are most valuable at unstable or external boundaries.
+        weight: 1
+      - concept: Verifying doubles reduce interface drift.
+        weight: 1
+      - concept: Integration and contract tests validate real boundary assumptions.
+        weight: 1.5
+      - concept: A balanced test pyramid localizes failures while preserving confidence.
+        weight: 1
+    follow_ups: []

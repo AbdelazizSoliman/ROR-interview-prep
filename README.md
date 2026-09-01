@@ -57,3 +57,18 @@ Additional quality checks are available through:
 ```sh
 bin/ci
 ```
+
+## Question bank
+
+Question-bank source files live under `db/question_bank/`. Import all YAML files with:
+
+```sh
+bin/rails question_bank:import
+```
+
+Each question has a globally unique `stable_key` such as
+`active_record.eager_loading.includes_preload_eager_load`. Stable keys are durable
+identities: do not derive them from database IDs or change them after publication.
+The importer is idempotent, updates existing records by stable key, synchronizes
+concepts by their YAML order, and fails the whole transaction when source content
+or follow-up references are invalid.

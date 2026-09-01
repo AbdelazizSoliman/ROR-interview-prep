@@ -1,0 +1,119 @@
+version: 1
+topic:
+  name: PostgreSQL
+  slug: postgresql
+  description: PostgreSQL query planning and indexing.
+  position: 3
+  active: true
+questions:
+  - stable_key: postgresql.indexes.index_scan_not_guaranteed
+    topic: postgresql
+    short_title: Why an index may not be scanned
+    prompt: >-
+      A useful PostgreSQL index exists for a query, but EXPLAIN shows a sequential scan. Why can that be the correct plan,
+      and what evidence would you gather before intervening?
+    difficulty: strong_mid
+    priority: core
+    question_type: debugging
+    reference_answer: >-
+      An index provides an access path, not a command to use it. PostgreSQL estimates costs from table size, predicate
+      selectivity, statistics, correlation, page costs, caching assumptions, and the work needed to visit heap pages.
+      If many rows qualify, a sequential scan can be cheaper than random index and heap access. Check `EXPLAIN (ANALYZE,
+      BUFFERS)`, estimated versus actual rows, current statistics, data distribution, predicate/type compatibility, and
+      whether the index covers the query. Correct stale or insufficient statistics and query/index design before changing
+      planner cost settings; disabling sequential scans is a diagnostic, not a production fix.
+    explanation: >-
+      The optimizer chooses its estimated cheapest valid plan, so investigation should focus on estimates and measured work.
+    common_mistakes: >-
+      Assuming index presence guarantees usage; forcing scans globally; ignoring low selectivity; comparing plans without
+      actual timing or buffers; overlooking implicit casts and stale statistics.
+    active: true
+    position: 0
+    concepts:
+      - concept: PostgreSQL uses a cost-based planner.
+        weight: 1.5
+      - concept: Low-selectivity predicates can favor sequential access.
+        weight: 1.5
+      - concept: Statistics drive row-count and cost estimates.
+        weight: 1
+      - concept: Heap access and page locality affect index-scan cost.
+        weight: 1
+      - concept: Planner switches are diagnostic tools, not durable fixes.
+        weight: 1
+    follow_ups:
+      - stable_key: postgresql.plans.explain_vs_explain_analyze
+        relationship_type: follow_up
+
+  - stable_key: postgresql.plans.explain_vs_explain_analyze
+    topic: postgresql
+    short_title: EXPLAIN vs EXPLAIN ANALYZE
+    prompt: >-
+      Compare PostgreSQL `EXPLAIN` with `EXPLAIN ANALYZE`. What additional information does ANALYZE provide, and what
+      operational precautions are necessary?
+    difficulty: mid
+    priority: core
+    question_type: comparison
+    reference_answer: >-
+      `EXPLAIN` plans the statement and reports estimated costs, rows, widths, and plan nodes without executing it.
+      `EXPLAIN ANALYZE` executes the statement and adds actual timing, rows, loops, and total execution information.
+      Options such as `BUFFERS`, `WAL`, and timing controls add evidence about I/O and writes. Because ANALYZE really runs
+      the statement, data-changing commands have real effects unless wrapped in a transaction that is rolled back, and an
+      expensive query remains expensive. Compare estimates with actual rows at each node to find cardinality errors, while
+      accounting for cache warming and instrumentation overhead.
+    explanation: >-
+      Execution evidence is essential, but collecting it must not create unintended production writes or load.
+    common_mistakes: >-
+      Saying EXPLAIN ANALYZE only improves estimates; running it casually on UPDATE/DELETE; reading cost units as milliseconds;
+      focusing only on the top node and ignoring loops.
+    active: true
+    position: 1
+    concepts:
+      - concept: EXPLAIN reports planner estimates without executing the statement.
+        weight: 1
+      - concept: ANALYZE executes and reports actual rows, loops, and time.
+        weight: 1.5
+      - concept: Estimated-versus-actual cardinality reveals planner misestimation.
+        weight: 1.5
+      - concept: Data-changing statements and expensive reads require operational care.
+        weight: 1
+      - concept: BUFFERS exposes shared and temporary block activity.
+        weight: 1
+    follow_ups: []
+
+  - stable_key: postgresql.indexes.composite_column_order
+    topic: postgresql
+    short_title: Composite index column ordering
+    prompt: >-
+      How do you choose column order for a multicolumn B-tree index in PostgreSQL? Address equality, range predicates,
+      ordering, selectivity, and why the most-selective-column-first rule is incomplete.
+    difficulty: senior
+    priority: advanced
+    question_type: sql
+    reference_answer: >-
+      Column order should follow real query shapes. A B-tree can efficiently constrain the leading columns; equality
+      predicates on leading columns allow later columns to narrow the scan, while the first range condition often limits
+      how much later columns reduce the scanned index range. The same order may satisfy `ORDER BY` and avoid a sort, and
+      included columns can help index-only scans without becoming search keys. Global selectivity alone is not the rule:
+      an equality column commonly belongs before a selective range column, and an index intended for ordering may need a
+      different sequence. Validate with representative data and plans, balancing benefit against write and storage cost.
+    explanation: >-
+      Composite indexes encode an ordered access path; workload predicates and ordering determine whether that path is useful.
+    common_mistakes: >-
+      Always putting the highest-cardinality column first; ignoring range boundaries; expecting arbitrary suffix searches to
+      behave like leading-column searches; creating overlapping indexes without considering write cost.
+    active: true
+    position: 2
+    concepts:
+      - concept: Leading-column predicates define the usable B-tree search range.
+        weight: 1.5
+      - concept: Equality predicates usually compose before the first range predicate.
+        weight: 1.5
+      - concept: Index order can satisfy ORDER BY and LIMIT access patterns.
+        weight: 1
+      - concept: INCLUDE columns cover output but are not search keys.
+        weight: 1
+      - concept: Index design must be validated against workload and write cost.
+        weight: 1
+    follow_ups:
+      - stable_key: postgresql.indexes.index_scan_not_guaranteed
+        relationship_type: related

@@ -10,9 +10,76 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_01_120801) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_01_131333) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "question_concepts", force: :cascade do |t|
+    t.text "concept", null: false
+    t.datetime "created_at", null: false
+    t.text "explanation"
+    t.integer "position", default: 0, null: false
+    t.bigint "question_id", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "weight", precision: 6, scale: 2, default: "1.0", null: false
+    t.index ["question_id"], name: "index_question_concepts_on_question_id"
+    t.check_constraint "\"position\" >= 0", name: "question_concepts_position_nonnegative"
+    t.check_constraint "weight > 0::numeric", name: "question_concepts_weight_positive"
+  end
+
+  create_table "question_follow_ups", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "follow_up_question_id", null: false
+    t.integer "position", default: 0, null: false
+    t.bigint "question_id", null: false
+    t.string "relationship_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["follow_up_question_id"], name: "index_question_follow_ups_on_follow_up_question_id"
+    t.index ["question_id", "follow_up_question_id"], name: "index_question_follow_ups_on_question_pair", unique: true
+    t.index ["question_id"], name: "index_question_follow_ups_on_question_id"
+    t.check_constraint "\"position\" >= 0", name: "question_follow_ups_position_nonnegative"
+    t.check_constraint "question_id <> follow_up_question_id", name: "question_follow_ups_not_self"
+    t.check_constraint "relationship_type::text = ANY (ARRAY['follow_up'::character varying, 'deeper'::character varying, 'related'::character varying]::text[])", name: "question_follow_ups_type_allowed"
+  end
+
+  create_table "questions", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.text "common_mistakes"
+    t.datetime "created_at", null: false
+    t.string "difficulty", null: false
+    t.text "explanation"
+    t.integer "position", default: 0, null: false
+    t.string "priority", null: false
+    t.text "prompt", null: false
+    t.string "question_type", null: false
+    t.text "reference_answer", null: false
+    t.string "short_title"
+    t.string "stable_key", null: false
+    t.bigint "topic_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_questions_on_active"
+    t.index ["difficulty"], name: "index_questions_on_difficulty"
+    t.index ["priority"], name: "index_questions_on_priority"
+    t.index ["question_type"], name: "index_questions_on_question_type"
+    t.index ["stable_key"], name: "index_questions_on_stable_key", unique: true
+    t.index ["topic_id"], name: "index_questions_on_topic_id"
+    t.check_constraint "\"position\" >= 0", name: "questions_position_nonnegative"
+    t.check_constraint "difficulty::text = ANY (ARRAY['junior'::character varying, 'mid'::character varying, 'strong_mid'::character varying, 'senior'::character varying]::text[])", name: "questions_difficulty_allowed"
+    t.check_constraint "priority::text = ANY (ARRAY['core'::character varying, 'important'::character varying, 'advanced'::character varying]::text[])", name: "questions_priority_allowed"
+    t.check_constraint "question_type::text = ANY (ARRAY['knowledge'::character varying, 'comparison'::character varying, 'debugging'::character varying, 'production_scenario'::character varying, 'architecture'::character varying, 'code_reasoning'::character varying, 'sql'::character varying]::text[])", name: "questions_type_allowed"
+  end
+
+  create_table "topics", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_topics_on_slug", unique: true
+    t.check_constraint "\"position\" >= 0", name: "topics_position_nonnegative"
+  end
 
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -25,4 +92,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_120801) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
+
+  add_foreign_key "question_concepts", "questions"
+  add_foreign_key "question_follow_ups", "questions"
+  add_foreign_key "question_follow_ups", "questions", column: "follow_up_question_id"
+  add_foreign_key "questions", "topics"
 end

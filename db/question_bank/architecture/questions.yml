@@ -1,0 +1,81 @@
+version: 1
+topic:
+  name: Architecture
+  slug: architecture
+  description: Reliable application and data-boundary design.
+  position: 5
+  active: true
+questions:
+  - stable_key: architecture.jobs.idempotency
+    topic: architecture
+    short_title: Background job idempotency
+    prompt: >-
+      A background job may be delivered more than once or retried after partial failure. How would you design it to be
+      idempotent, especially when it changes database state and calls an external API?
+    difficulty: strong_mid
+    priority: core
+    question_type: production_scenario
+    reference_answer: >-
+      Assume at-least-once execution and give the operation a stable idempotency identity. Make database transitions
+      conditional and enforce uniqueness where possible, so repeating a completed transition is a no-op. Keep transactions
+      short and record durable intent or completion. For external APIs, pass an idempotency key when supported; otherwise
+      persist an operation record and reconcile ambiguous outcomes rather than blindly repeating. An outbox can atomically
+      record work with domain changes, but consumers must still be idempotent. Retries need bounded backoff, observability,
+      and a policy for permanent failures.
+    explanation: >-
+      Queue acknowledgement cannot make a database and remote service one transaction, so correctness comes from durable state and repeatable operations.
+    common_mistakes: >-
+      Treating unique job enqueueing as execution idempotency; holding a database transaction open across HTTP; checking then
+      inserting without a unique constraint; assuming exactly-once delivery.
+    active: true
+    position: 0
+    concepts:
+      - concept: Background delivery should be treated as at least once.
+        weight: 1.5
+      - concept: Stable idempotency keys identify one logical operation.
+        weight: 1.5
+      - concept: Database constraints make conditional state transitions race-safe.
+        weight: 1
+      - concept: External side effects require provider keys or reconciliation.
+        weight: 1.5
+      - concept: Outbox patterns close the database-to-queue publication gap.
+        weight: 1
+    follow_ups: []
+
+  - stable_key: architecture.tenancy.record_isolation
+    topic: architecture
+    short_title: Multi-tenant record isolation
+    prompt: >-
+      Design record isolation for a row-based multi-tenant Rails application. How do you prevent cross-tenant reads and
+      writes beyond relying on developers to remember a `where(tenant_id: ...)` clause?
+    difficulty: strong_mid
+    priority: core
+    question_type: architecture
+    reference_answer: >-
+      Put a non-null tenant key on every tenant-owned row and carry tenant context explicitly through the request and job.
+      Scope repository/association entry points from the current tenant rather than querying global classes, and include the
+      tenant key in uniqueness constraints and foreign-key design so identifiers cannot cross boundaries. Tests should probe
+      hostile cross-tenant IDs. For stronger defense, PostgreSQL row-level security can enforce tenant predicates at the
+      database layer, but connection-pool session context must be set and reset safely and privileged roles must be understood.
+      Avoid a default scope as the only control because unscoped queries and background execution can bypass it.
+    explanation: >-
+      Tenant isolation is a security invariant requiring layered enforcement at context, query, schema, and possibly database-policy levels.
+    common_mistakes: >-
+      Using only controller filters; global uniqueness where tenant-scoped uniqueness is intended; accepting a tenant ID from
+      untrusted parameters; leaking tenant session state through pooled connections; treating default_scope as authorization.
+    active: true
+    position: 1
+    concepts:
+      - concept: Tenant context must be explicit in requests and asynchronous work.
+        weight: 1.5
+      - concept: Queries should originate from tenant-scoped associations or repositories.
+        weight: 1.5
+      - concept: Constraints and keys should include tenant identity where appropriate.
+        weight: 1
+      - concept: Row-level security can provide defense in depth.
+        weight: 1
+      - concept: Connection pools require careful tenant-context cleanup.
+        weight: 1
+    follow_ups:
+      - stable_key: active_record.transactions.rollback_behavior
+        relationship_type: related

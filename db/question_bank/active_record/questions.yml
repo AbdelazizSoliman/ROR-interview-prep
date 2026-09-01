@@ -1,0 +1,148 @@
+version: 1
+topic:
+  name: Active Record
+  slug: active-record
+  description: Relational persistence and query behavior in Rails.
+  position: 2
+  active: true
+questions:
+  - stable_key: active_record.performance.n_plus_one
+    topic: active-record
+    short_title: Recognizing and fixing N+1 queries
+    prompt: >-
+      What is an N+1 query problem in Active Record? Show how you would identify it and choose an appropriate fix rather
+      than adding eager loading blindly.
+    difficulty: junior
+    priority: core
+    question_type: debugging
+    reference_answer: >-
+      N+1 occurs when one query loads a collection and accessing an association issues another query for each row.
+      Confirm it with query logs, notifications, profiling, or a detector such as Bullet, then preload the association
+      when the response actually needs it. Use `includes` for adaptive eager loading, `preload` to force separate queries,
+      or `eager_load` when one joined query is required. Select only needed associations and verify query count and memory,
+      because eager loading a large graph can replace many queries with excessive rows and allocations.
+    explanation: >-
+      Query count is evidence, but the right fix also accounts for cardinality, memory, filtering, and the rendered access pattern.
+    common_mistakes: >-
+      Defining N+1 as any multiple queries; adding includes everywhere; overlooking N+1s in serializers or partials; fixing
+      query count while creating a huge joined result.
+    active: true
+    position: 0
+    concepts:
+      - concept: Lazy association access can issue one query per parent row.
+        weight: 1.5
+      - concept: Logs and instrumentation should confirm the access pattern.
+        weight: 1
+      - concept: Eager-loading strategy depends on cardinality and query semantics.
+        weight: 1.5
+      - concept: Query count, transferred rows, and object allocations all matter.
+        weight: 1
+    follow_ups:
+      - stable_key: active_record.eager_loading.includes_preload_eager_load
+        relationship_type: deeper
+
+  - stable_key: active_record.eager_loading.includes_preload_eager_load
+    topic: active-record
+    short_title: includes vs preload vs eager_load
+    prompt: >-
+      Compare `includes`, `preload`, and `eager_load` in Active Record. What SQL shapes do they produce, and how can a
+      condition on the associated table change the behavior of `includes`?
+    difficulty: mid
+    priority: core
+    question_type: comparison
+    reference_answer: >-
+      `preload` always loads associations with separate queries and cannot use the association table to filter the parent
+      query. `eager_load` uses a `LEFT OUTER JOIN` and reconstructs records from the joined rows. `includes` lets Active
+      Record choose: it normally preloads separately, but association-table conditions or explicit `references` can make
+      it use a join. A joined condition may also change which associated rows are loaded, so SQL and returned association
+      contents must be inspected rather than assuming `includes` is merely a performance hint.
+    explanation: >-
+      These APIs affect both performance and, once associated-table predicates appear, query semantics.
+    common_mistakes: >-
+      Saying includes always emits two queries; using preload with an associated-table WHERE clause; overlooking duplicate
+      joined rows; assuming eager loading never changes association contents.
+    active: true
+    position: 1
+    concepts:
+      - concept: preload uses separate association queries.
+        weight: 1
+      - concept: eager_load uses a left outer join.
+        weight: 1
+      - concept: includes selects a strategy based on query references.
+        weight: 1.5
+      - concept: Joined predicates can affect both parent selection and loaded children.
+        weight: 1.5
+    follow_ups:
+      - stable_key: active_record.queries.joins_vs_eager_loading
+        relationship_type: deeper
+
+  - stable_key: active_record.queries.joins_vs_eager_loading
+    topic: active-record
+    short_title: joins vs eager loading
+    prompt: >-
+      Why does `joins(:comments)` not prevent an N+1 when code later reads each post's comments? Contrast filtering with
+      association loading and discuss duplicate parent rows.
+    difficulty: mid
+    priority: important
+    question_type: comparison
+    reference_answer: >-
+      `joins` changes the SQL used to select the base relation but does not mark the association as loaded. Reading
+      `post.comments` can therefore still query once per post. Use joins when related tables are needed for filtering or
+      ordering, and use a preload/eager-load strategy when Ruby code needs association objects. A has-many join can produce
+      repeated parent rows; `distinct` may be needed for base-record semantics, though it has a cost and does not itself
+      preload children. Sometimes `joins(...).preload(...)` intentionally separates filtering from complete association loading.
+    explanation: >-
+      Joining tables and hydrating an association solve different problems even when their SQL can look similar.
+    common_mistakes: >-
+      Assuming joins populates associations; adding distinct without understanding why; using joined child predicates while
+      expecting all children to be loaded; overlooking pagination distortion from duplicate rows.
+    active: true
+    position: 2
+    concepts:
+      - concept: joins affects base-row selection, not association loaded state.
+        weight: 1.5
+      - concept: Eager loading materializes association records for later access.
+        weight: 1.5
+      - concept: Has-many joins can duplicate parent rows.
+        weight: 1
+      - concept: joins plus preload can separate filtering from complete loading.
+        weight: 1
+    follow_ups: []
+
+  - stable_key: active_record.transactions.rollback_behavior
+    topic: active-record
+    short_title: Transactions and rollback behavior
+    prompt: >-
+      Explain Active Record transaction rollback behavior, including `ActiveRecord::Rollback`, nested transactions,
+      savepoints, and why rescuing a database statement error inside a PostgreSQL transaction is dangerous.
+    difficulty: strong_mid
+    priority: core
+    question_type: production_scenario
+    reference_answer: >-
+      An exception escaping a transaction block rolls back and is re-raised, except `ActiveRecord::Rollback`, which rolls
+      back but is swallowed by the transaction wrapper. Nested transaction blocks usually join the outer transaction, so
+      an inner rollback may not roll back outer work. `requires_new: true` uses a savepoint on PostgreSQL and can roll back
+      the nested unit. After PostgreSQL reports a statement error, the transaction is aborted until rollback; rescuing
+      `ActiveRecord::StatementInvalid` inside the block and continuing leads to further failures. Retry the entire transaction
+      at an appropriate boundary, and keep non-database side effects outside or after commit.
+    explanation: >-
+      Correct transaction reasoning requires distinguishing Ruby exception flow, Rails nesting behavior, and database state.
+    common_mistakes: >-
+      Assuming every nested block creates a real transaction; expecting ActiveRecord::Rollback to be re-raised; rescuing
+      uniqueness violations and continuing; assuming HTTP calls or jobs roll back with SQL.
+    active: true
+    position: 3
+    concepts:
+      - concept: Escaping exceptions trigger rollback; ActiveRecord::Rollback is swallowed.
+        weight: 1.5
+      - concept: Nested blocks normally participate in the parent transaction.
+        weight: 1
+      - concept: requires_new uses savepoints where supported.
+        weight: 1
+      - concept: PostgreSQL statement errors abort the current transaction.
+        weight: 1.5
+      - concept: External side effects are outside database atomicity.
+        weight: 1
+    follow_ups:
+      - stable_key: architecture.tenancy.record_isolation
+        relationship_type: related

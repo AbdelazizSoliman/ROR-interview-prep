@@ -1,0 +1,108 @@
+version: 1
+topic:
+  name: Ruby
+  slug: ruby
+  description: Ruby language semantics and object model.
+  position: 0
+  active: true
+questions:
+  - stable_key: ruby.objects.references_and_mutation
+    topic: ruby
+    short_title: Object references and mutation
+    prompt: >-
+      In Ruby, what is the difference between rebinding a variable and mutating the object it references?
+      Explain the effect on other variables that reference the same object and give an example involving a method call.
+    difficulty: junior
+    priority: core
+    question_type: code_reasoning
+    reference_answer: >-
+      Variables hold references to objects. Assignment rebinds one variable to another object and does not change the
+      original object. A mutating operation changes the referenced object's state, so every variable referencing that
+      object observes the change. Ruby passes method arguments by value, where the value is an object reference: a method
+      can mutate the caller's object, but rebinding its local parameter does not rebind the caller's variable. For example,
+      `def append(items); items << :x; end` changes the caller's array, while `items = [:x]` inside the method does not.
+    explanation: >-
+      This distinction explains many surprising collection and string bugs and is foundational to reasoning about side effects.
+    common_mistakes: >-
+      Saying Ruby passes objects by reference; assuming assignment copies an object; treating every bang method as the only
+      kind of mutation; forgetting that methods such as `Array#<<` and `Hash#merge!` mutate shared state.
+    active: true
+    position: 0
+    concepts:
+      - concept: Variables store object references rather than objects themselves.
+        weight: 1
+      - concept: Assignment rebinds a local variable.
+        weight: 1
+      - concept: Mutation is visible through every alias to the object.
+        weight: 1
+      - concept: Ruby argument passing is pass-by-value of a reference.
+        weight: 1.5
+    follow_ups:
+      - stable_key: ruby.callables.block_proc_lambda
+        relationship_type: related
+
+  - stable_key: ruby.modules.include_extend_prepend
+    topic: ruby
+    short_title: include, extend, and prepend
+    prompt: >-
+      Compare `include`, `extend`, and `prepend` when applying a module to a class. How does each affect method lookup,
+      and when is `prepend` preferable to alias-based wrapping?
+    difficulty: mid
+    priority: core
+    question_type: comparison
+    reference_answer: >-
+      `include` inserts the module into the class's ancestor chain after the class, making module methods instance methods
+      that the class itself can override. `extend` adds the module's instance methods to the receiver's singleton class,
+      commonly creating class methods. `prepend` inserts the module before the class, so its methods run first and can call
+      `super` to reach the class implementation. Prepend is a composable way to decorate behavior because it participates
+      in normal method lookup and avoids fragile alias chains.
+    explanation: >-
+      A strong answer reasons from the ancestor chain rather than memorizing that one form creates class methods.
+    common_mistakes: >-
+      Claiming `include` copies methods; saying `extend` always operates on classes; forgetting singleton classes; using
+      `prepend` without calling `super` when the original behavior must remain.
+    active: true
+    position: 1
+    concepts:
+      - concept: Ruby method lookup follows the ancestor chain.
+        weight: 1.5
+      - concept: include exposes module methods as instance methods.
+        weight: 1
+      - concept: extend targets the receiver's singleton class.
+        weight: 1
+      - concept: prepend places the module before the class and composes through super.
+        weight: 1.5
+    follow_ups: []
+
+  - stable_key: ruby.callables.block_proc_lambda
+    topic: ruby
+    short_title: Blocks, Procs, and lambdas
+    prompt: >-
+      Contrast a block, a Proc, and a lambda in Ruby. Include how they are passed, how argument arity differs,
+      and what `return` does inside a Proc versus a lambda.
+    difficulty: mid
+    priority: core
+    question_type: comparison
+    reference_answer: >-
+      A block is syntax attached to a method call and is not an object until captured with `&block` or `Proc.new`.
+      A Proc is an object representing executable code and can be stored or passed explicitly. A lambda is a Proc with
+      method-like behavior: it enforces arity and `return` exits only the lambda. A non-lambda Proc is lenient about
+      arguments, and `return` attempts to return from the method context where the Proc was defined, raising
+      `LocalJumpError` if that context has already finished.
+    explanation: >-
+      The control-flow distinction matters in callbacks, enumerable pipelines, and APIs that store callables for later use.
+    common_mistakes: >-
+      Calling blocks objects; claiming lambdas are a separate class; reversing strict and lenient arity; assuming `return`
+      always exits only the callable.
+    active: true
+    position: 2
+    concepts:
+      - concept: A block is call-site syntax and at most one implicit block accompanies a call.
+        weight: 1
+      - concept: Proc objects make callable behavior storable and passable.
+        weight: 1
+      - concept: Lambdas enforce arity while ordinary Procs are lenient.
+        weight: 1.5
+      - concept: Lambda return is local; Proc return is non-local.
+        weight: 1.5
+    follow_ups: []

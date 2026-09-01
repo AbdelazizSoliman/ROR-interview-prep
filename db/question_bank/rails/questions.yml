@@ -1,0 +1,78 @@
+version: 1
+topic:
+  name: Rails
+  slug: rails
+  description: Rails framework behavior and application design.
+  position: 1
+  active: true
+questions:
+  - stable_key: rails.request.request_lifecycle
+    topic: rails
+    short_title: Rails request lifecycle
+    prompt: >-
+      Trace an HTTP request through a Rails application from the server receiving it to the response reaching the client.
+      Identify where middleware, routing, controllers, rendering, and database access participate.
+    difficulty: mid
+    priority: core
+    question_type: architecture
+    reference_answer: >-
+      The web server hands a Rack environment to the Rails Rack application. Middleware may inspect or transform the
+      request and later the response. The router recognizes the method and path and dispatches to a controller action.
+      Controller callbacks and the action run, usually invoking domain or persistence code through Active Record.
+      Rails renders a template or serializes a response unless the action already responded. The response then unwinds
+      through middleware to the server. Exceptions are handled by configured middleware, and request-scoped execution
+      hooks clean up resources such as database connections.
+    explanation: >-
+      The useful mental model is a Rack call stack, not a direct jump from URL to controller.
+    common_mistakes: >-
+      Omitting middleware; claiming routes execute controller code; assuming a view always renders; overlooking connection
+      checkout/cleanup and exception middleware.
+    active: true
+    position: 0
+    concepts:
+      - concept: Rails is a Rack application surrounded by middleware.
+        weight: 1.5
+      - concept: Routing recognizes a verb/path and selects a controller action.
+        weight: 1
+      - concept: Controllers coordinate request-specific work and response construction.
+        weight: 1
+      - concept: Rendering and middleware produce the final Rack response tuple.
+        weight: 1
+      - concept: The executor manages request-scoped framework state and cleanup.
+        weight: 1
+    follow_ups: []
+
+  - stable_key: rails.models.callbacks_tradeoffs
+    topic: rails
+    short_title: Callbacks and when to avoid them
+    prompt: >-
+      What are appropriate uses for Active Record callbacks, and when do callbacks make a Rails application harder to
+      reason about? Describe a safer design for important external side effects.
+    difficulty: strong_mid
+    priority: important
+    question_type: production_scenario
+    reference_answer: >-
+      Callbacks are suitable for invariants local to the model lifecycle, such as normalizing owned data, when the behavior
+      should occur on every relevant persistence path. They become risky when they hide orchestration, depend on request
+      context, trigger network calls, or create chains of writes. External side effects should generally be initiated by an
+      explicit application/service operation after a successful transaction, often using `after_commit` only to enqueue an
+      idempotent job. Explicit orchestration exposes ordering, inputs, error handling, and transaction boundaries.
+    explanation: >-
+      The issue is not that callbacks are universally bad; it is hidden coupling and ambiguous transactional behavior.
+    common_mistakes: >-
+      Treating all callbacks as an anti-pattern; sending email in `after_save`; confusing `after_save` with `after_commit`;
+      assuming callback failure can roll back an already committed external side effect.
+    active: true
+    position: 1
+    concepts:
+      - concept: Model-local invariants can fit lifecycle callbacks.
+        weight: 1
+      - concept: Hidden orchestration increases coupling and surprises callers.
+        weight: 1.5
+      - concept: External effects cannot participate atomically in a database transaction.
+        weight: 1.5
+      - concept: after_commit can enqueue idempotent asynchronous work.
+        weight: 1
+    follow_ups:
+      - stable_key: architecture.jobs.idempotency
+        relationship_type: deeper
