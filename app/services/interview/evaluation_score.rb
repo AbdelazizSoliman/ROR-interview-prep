@@ -4,7 +4,7 @@ module Interview
       0 => "No meaningful knowledge",
       1 => "Very weak",
       2 => "Partial",
-    3 => "Acceptable mid-level answer",
+      3 => "Acceptable mid-level answer",
       4 => "Strong",
       5 => "Excellent / precise / production-aware"
     }.freeze

@@ -29,13 +29,17 @@ questions:
     active: true
     position: 0
     concepts:
-      - concept: Lazy association access can issue one query per parent row.
+      - stable_key: lazy_association_access_can_issue_one_query_per
+        concept: Lazy association access can issue one query per parent row.
         weight: 1.5
-      - concept: Logs and instrumentation should confirm the access pattern.
+      - stable_key: logs_and_instrumentation_should_confirm_the_acce
+        concept: Logs and instrumentation should confirm the access pattern.
         weight: 1
-      - concept: Eager-loading strategy depends on cardinality and query semantics.
+      - stable_key: eager_loading_strategy_depends_on_cardinality_an
+        concept: Eager-loading strategy depends on cardinality and query semantics.
         weight: 1.5
-      - concept: Query count, transferred rows, and object allocations all matter.
+      - stable_key: query_count_transferred_rows_and_object_allocati
+        concept: Query count, transferred rows, and object allocations all matter.
         weight: 1
     follow_ups:
       - stable_key: active_record.eager_loading.includes_preload_eager_load
@@ -64,13 +68,17 @@ questions:
     active: true
     position: 1
     concepts:
-      - concept: preload uses separate association queries.
+      - stable_key: preload_uses_separate_association_queries
+        concept: preload uses separate association queries.
         weight: 1
-      - concept: eager_load uses a left outer join.
+      - stable_key: eager_load_uses_a_left_outer_join
+        concept: eager_load uses a left outer join.
         weight: 1
-      - concept: includes selects a strategy based on query references.
+      - stable_key: includes_selects_a_strategy_based_on_query_refer
+        concept: includes selects a strategy based on query references.
         weight: 1.5
-      - concept: Joined predicates can affect both parent selection and loaded children.
+      - stable_key: joined_predicates_can_affect_both_parent_selecti
+        concept: Joined predicates can affect both parent selection and loaded children.
         weight: 1.5
     follow_ups:
       - stable_key: active_record.queries.joins_vs_eager_loading
@@ -99,13 +107,17 @@ questions:
     active: true
     position: 2
     concepts:
-      - concept: joins affects base-row selection, not association loaded state.
+      - stable_key: joins_affects_base_row_selection_not_association
+        concept: joins affects base-row selection, not association loaded state.
         weight: 1.5
-      - concept: Eager loading materializes association records for later access.
+      - stable_key: eager_loading_materializes_association_records_f
+        concept: Eager loading materializes association records for later access.
         weight: 1.5
-      - concept: Has-many joins can duplicate parent rows.
+      - stable_key: has_many_joins_can_duplicate_parent_rows
+        concept: Has-many joins can duplicate parent rows.
         weight: 1
-      - concept: joins plus preload can separate filtering from complete loading.
+      - stable_key: joins_plus_preload_can_separate_filtering_from_c
+        concept: joins plus preload can separate filtering from complete loading.
         weight: 1
     follow_ups: []
 
@@ -133,15 +145,20 @@ questions:
     active: true
     position: 3
     concepts:
-      - concept: Escaping exceptions trigger rollback; ActiveRecord::Rollback is swallowed.
+      - stable_key: escaping_exceptions_trigger_rollback_activerecor
+        concept: Escaping exceptions trigger rollback; ActiveRecord::Rollback is swallowed.
         weight: 1.5
-      - concept: Nested blocks normally participate in the parent transaction.
+      - stable_key: nested_blocks_normally_participate_in_the_parent
+        concept: Nested blocks normally participate in the parent transaction.
         weight: 1
-      - concept: requires_new uses savepoints where supported.
+      - stable_key: requires_new_uses_savepoints_where_supported
+        concept: requires_new uses savepoints where supported.
         weight: 1
-      - concept: PostgreSQL statement errors abort the current transaction.
+      - stable_key: postgresql_statement_errors_abort_the_current_tr
+        concept: PostgreSQL statement errors abort the current transaction.
         weight: 1.5
-      - concept: External side effects are outside database atomicity.
+      - stable_key: external_side_effects_are_outside_database_atomi
+        concept: External side effects are outside database atomicity.
         weight: 1
     follow_ups:
       - stable_key: architecture.tenancy.record_isolation

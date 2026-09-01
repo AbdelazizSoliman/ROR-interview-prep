@@ -58,6 +58,23 @@ Additional quality checks are available through:
 bin/ci
 ```
 
+## Evaluation mode
+
+Answer evaluation uses the deterministic phrase evaluator by default. To opt
+into the OpenAI adapter explicitly, set these environment variables (never
+commit the key):
+
+```sh
+export INTERVIEW_EVALUATOR=ai
+export OPENAI_API_KEY=your_key
+export OPENAI_EVALUATION_MODEL=gpt-5.6-luna
+export OPENAI_EVALUATION_TIMEOUT=30
+```
+
+Set `INTERVIEW_EVALUATOR=deterministic` for local development without an API
+key. AI evaluations use the configured model and persist only normalized
+feedback and evaluator metadata, not prompts or raw provider responses.
+
 ## Question bank
 
 Question-bank source files live under `db/question_bank/`. Import all YAML files with:
@@ -69,6 +86,7 @@ bin/rails question_bank:import
 Each question has a globally unique `stable_key` such as
 `active_record.eager_loading.includes_preload_eager_load`. Stable keys are durable
 identities: do not derive them from database IDs or change them after publication.
-The importer is idempotent, updates existing records by stable key, synchronizes
-concepts by their YAML order, and fails the whole transaction when source content
+QuestionConcept records have stable keys unique within each question; do not
+change them after publication. The importer is idempotent, updates existing
+records by stable key, synchronizes concepts by their stable keys, and fails the whole transaction when source content
 or follow-up references are invalid.

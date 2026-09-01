@@ -15,4 +15,19 @@ RSpec.describe QuestionConcept, type: :model do
 
     expect(question.question_concepts).to eq([ first, second ])
   end
+
+  it "requires a stable key unique within its question" do
+    question = create(:question)
+    create(:question_concept, question:, stable_key: "identity")
+    duplicate = build(:question_concept, question:, stable_key: "identity")
+
+    expect(duplicate).not_to be_valid
+    expect(build(:question_concept, question:, stable_key: "bad-key")).not_to be_valid
+  end
+
+  it "does not silently change a stable key after creation" do
+    concept = create(:question_concept, stable_key: "published_key")
+
+    expect { concept.update!(stable_key: "new_key") }.to raise_error(ActiveRecord::ReadonlyAttributeError)
+  end
 end

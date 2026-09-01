@@ -15,7 +15,8 @@ module Interview
           matched_concepts: matched,
           missing_concepts: missing,
           misconceptions: [],
-          evaluator_type: "deterministic"
+          evaluator_type: "deterministic",
+          evaluator_model: "phrase-v1"
         }
       end
 

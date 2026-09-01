@@ -8,6 +8,7 @@ FactoryBot.define do
     missing_concepts { [] }
     misconceptions { [] }
     evaluator_type { "deterministic" }
+    evaluator_model { nil }
     evaluated_at { Time.current }
   end
 end

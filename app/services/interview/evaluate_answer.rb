@@ -4,13 +4,13 @@ module Interview
     class InvalidResult < Error; end
     class InvalidAnswer < Error; end
 
-    def self.call(answer_attempt:, evaluator: Evaluators::Deterministic.new)
+    def self.call(answer_attempt:, evaluator: nil)
       new(answer_attempt:, evaluator:).call
     end
 
     def initialize(answer_attempt:, evaluator:)
       @answer_attempt = answer_attempt
-      @evaluator = evaluator
+      @evaluator = evaluator || Evaluators::Resolver.call
     end
 
     def call
@@ -18,6 +18,9 @@ module Interview
       return existing if existing
       raise InvalidAnswer, "Answer must belong to a submitted session question." unless answer_attempt.session_question.answered_at.present?
 
+      # Hold the row lock through the provider call. This intentionally trades
+      # up to the configured network timeout of contention for preventing two
+      # simultaneous billable evaluations; no distributed lock is needed here.
       answer_attempt.with_lock do
         existing = answer_attempt.reload.evaluation
         next existing if existing

@@ -32,7 +32,7 @@ module Interview
         stable_key topic short_title prompt difficulty priority question_type
         reference_answer explanation common_mistakes active position concepts follow_ups
       ].freeze
-      CONCEPT_KEYS = %w[concept explanation weight].freeze
+      CONCEPT_KEYS = %w[stable_key concept explanation weight].freeze
       FOLLOW_UP_KEYS = %w[stable_key relationship_type].freeze
 
       def self.call(path: Rails.root.join("db/question_bank"))
@@ -139,11 +139,16 @@ module Interview
         validate_array!(concepts, "concepts for #{context}")
         raise Error, "Concepts must not be empty for #{context}" if concepts.empty?
 
+        stable_keys = Set.new
         concepts.each_with_index do |concept, index|
           concept_context = "concept #{index + 1} for #{context}"
           validate_hash!(concept, concept_context)
           validate_keys!(concept, CONCEPT_KEYS, concept_context)
+          require_value!(concept, "stable_key", concept_context)
           require_value!(concept, "concept", concept_context)
+          validate_string!(concept["stable_key"], "stable_key", concept_context)
+          raise Error, "stable_key must contain lowercase letters, numbers, and underscores in #{concept_context}" unless concept["stable_key"].match?(/\A[a-z0-9_]+\z/)
+          raise Error, "Duplicate concept stable_key #{concept["stable_key"].inspect} for #{context}" unless stable_keys.add?(concept["stable_key"])
           validate_string!(concept["concept"], "concept", concept_context)
           validate_optional_string!(concept["explanation"], "explanation", concept_context)
           weight = concept.fetch("weight", 1)
@@ -203,18 +208,36 @@ module Interview
         )
       end
 
-      # Concepts are source-owned and synchronized by array position. Unchanged
-      # rows retain identity; changed rows update; surplus rows are removed.
+      # Concepts are source-owned and synchronized by stable_key. Unchanged rows
+      # retain identity; changed rows update; surplus rows are removed.
       def sync_concepts(question, desired_concepts)
-        existing = question.question_concepts.to_a
+        existing = question.question_concepts.index_by(&:stable_key)
+        legacy_by_position = question.question_concepts.ordered.index_by(&:position).select do |_position, concept|
+          concept.stable_key.match?(/\Alegacy_\d+\z/)
+        end
+        desired_keys = []
         desired_concepts.each_with_index do |attributes, position|
-          concept = existing[position] || question.question_concepts.build
+          stable_key = attributes.fetch("stable_key")
+          desired_keys << stable_key
+          concept = existing[stable_key] || transition_legacy_concept(legacy_by_position[position], stable_key)
+          concept ||= question.question_concepts.build(stable_key:)
           new_record = concept.new_record?
           desired = attributes.slice("concept", "explanation").merge("weight" => attributes.fetch("weight", 1), "position" => position)
           assign_and_save(concept, desired)
           count_change(:concepts, concept, new_record)
         end
-        existing.drop(desired_concepts.length).each(&:destroy!)
+        question.question_concepts.where.not(stable_key: desired_keys).destroy_all
+      end
+
+      # The migration gives pre-Phase-5 rows temporary legacy_<id> keys. On
+      # their first import only, the old positional ordering identifies the
+      # corresponding source concept. Established non-legacy keys never enter
+      # this path; all later synchronization is stable-key-only.
+      def transition_legacy_concept(concept, stable_key)
+        return unless concept
+
+        concept.class.where(id: concept.id).update_all(stable_key:)
+        concept.reload
       end
 
       def sync_follow_ups(source_questions, questions)

@@ -30,15 +30,20 @@ questions:
     active: true
     position: 0
     concepts:
-      - concept: Rails is a Rack application surrounded by middleware.
+      - stable_key: rails_is_a_rack_application_surrounded_by_middle
+        concept: Rails is a Rack application surrounded by middleware.
         weight: 1.5
-      - concept: Routing recognizes a verb/path and selects a controller action.
+      - stable_key: routing_recognizes_a_verb_path_and_selects_a_con
+        concept: Routing recognizes a verb/path and selects a controller action.
         weight: 1
-      - concept: Controllers coordinate request-specific work and response construction.
+      - stable_key: controllers_coordinate_request_specific_work_and
+        concept: Controllers coordinate request-specific work and response construction.
         weight: 1
-      - concept: Rendering and middleware produce the final Rack response tuple.
+      - stable_key: rendering_and_middleware_produce_the_final_rack
+        concept: Rendering and middleware produce the final Rack response tuple.
         weight: 1
-      - concept: The executor manages request-scoped framework state and cleanup.
+      - stable_key: the_executor_manages_request_scoped_framework_st
+        concept: The executor manages request-scoped framework state and cleanup.
         weight: 1
     follow_ups: []
 
@@ -65,13 +70,17 @@ questions:
     active: true
     position: 1
     concepts:
-      - concept: Model-local invariants can fit lifecycle callbacks.
+      - stable_key: model_local_invariants_can_fit_lifecycle_callbac
+        concept: Model-local invariants can fit lifecycle callbacks.
         weight: 1
-      - concept: Hidden orchestration increases coupling and surprises callers.
+      - stable_key: hidden_orchestration_increases_coupling_and_surp
+        concept: Hidden orchestration increases coupling and surprises callers.
         weight: 1.5
-      - concept: External effects cannot participate atomically in a database transaction.
+      - stable_key: external_effects_cannot_participate_atomically_i
+        concept: External effects cannot participate atomically in a database transaction.
         weight: 1.5
-      - concept: after_commit can enqueue idempotent asynchronous work.
+      - stable_key: after_commit_can_enqueue_idempotent_asynchronous
+        concept: after_commit can enqueue idempotent asynchronous work.
         weight: 1
     follow_ups:
       - stable_key: architecture.jobs.idempotency

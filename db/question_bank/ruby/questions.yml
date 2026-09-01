@@ -29,13 +29,17 @@ questions:
     active: true
     position: 0
     concepts:
-      - concept: Variables store object references rather than objects themselves.
+      - stable_key: variables_store_object_references_rather_than_ob
+        concept: Variables store object references rather than objects themselves.
         weight: 1
-      - concept: Assignment rebinds a local variable.
+      - stable_key: assignment_rebinds_a_local_variable
+        concept: Assignment rebinds a local variable.
         weight: 1
-      - concept: Mutation is visible through every alias to the object.
+      - stable_key: mutation_is_visible_through_every_alias_to_the_o
+        concept: Mutation is visible through every alias to the object.
         weight: 1
-      - concept: Ruby argument passing is pass-by-value of a reference.
+      - stable_key: ruby_argument_passing_is_pass_by_value_of_a_refe
+        concept: Ruby argument passing is pass-by-value of a reference.
         weight: 1.5
     follow_ups:
       - stable_key: ruby.callables.block_proc_lambda
@@ -64,13 +68,17 @@ questions:
     active: true
     position: 1
     concepts:
-      - concept: Ruby method lookup follows the ancestor chain.
+      - stable_key: ruby_method_lookup_follows_the_ancestor_chain
+        concept: Ruby method lookup follows the ancestor chain.
         weight: 1.5
-      - concept: include exposes module methods as instance methods.
+      - stable_key: include_exposes_module_methods_as_instance_metho
+        concept: include exposes module methods as instance methods.
         weight: 1
-      - concept: extend targets the receiver's singleton class.
+      - stable_key: extend_targets_the_receiver_s_singleton_class
+        concept: extend targets the receiver's singleton class.
         weight: 1
-      - concept: prepend places the module before the class and composes through super.
+      - stable_key: prepend_places_the_module_before_the_class_and_c
+        concept: prepend places the module before the class and composes through super.
         weight: 1.5
     follow_ups: []
 
@@ -97,12 +105,16 @@ questions:
     active: true
     position: 2
     concepts:
-      - concept: A block is call-site syntax and at most one implicit block accompanies a call.
+      - stable_key: a_block_is_call_site_syntax_and_at_most_one_impl
+        concept: A block is call-site syntax and at most one implicit block accompanies a call.
         weight: 1
-      - concept: Proc objects make callable behavior storable and passable.
+      - stable_key: proc_objects_make_callable_behavior_storable_and
+        concept: Proc objects make callable behavior storable and passable.
         weight: 1
-      - concept: Lambdas enforce arity while ordinary Procs are lenient.
+      - stable_key: lambdas_enforce_arity_while_ordinary_procs_are_l
+        concept: Lambdas enforce arity while ordinary Procs are lenient.
         weight: 1.5
-      - concept: Lambda return is local; Proc return is non-local.
+      - stable_key: lambda_return_is_local_proc_return_is_non_local
+        concept: Lambda return is local; Proc return is non-local.
         weight: 1.5
     follow_ups: []

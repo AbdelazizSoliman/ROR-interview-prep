@@ -20,6 +20,7 @@ gem "tailwindcss-rails"
 gem "jbuilder"
 # Authentication for the application user boundary.
 gem "devise", "~> 5.0"
+gem "openai", "~> 0.83"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"

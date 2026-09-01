@@ -3,7 +3,7 @@ module Interview
     REQUIRED_ARRAYS = %i[matched_concepts missing_concepts misconceptions].freeze
 
     attr_reader :score, :summary, :stronger_answer, :matched_concepts,
-      :missing_concepts, :misconceptions, :evaluator_type
+      :missing_concepts, :misconceptions, :evaluator_type, :evaluator_model
 
     def self.from(raw)
       new(raw)
@@ -18,13 +18,14 @@ module Interview
       @missing_concepts = data.fetch(:missing_concepts)
       @misconceptions = data.fetch(:misconceptions)
       @evaluator_type = data.fetch(:evaluator_type)
+      @evaluator_model = data[:evaluator_model]
       validate!
     rescue KeyError, NoMethodError, TypeError => error
       raise ArgumentError, "Evaluator result has an invalid shape: #{error.message}"
     end
 
     def to_h
-      { score:, summary:, stronger_answer:, matched_concepts:, missing_concepts:, misconceptions:, evaluator_type: }
+      { score:, summary:, stronger_answer:, matched_concepts:, missing_concepts:, misconceptions:, evaluator_type:, evaluator_model: }
     end
 
     private
@@ -34,6 +35,7 @@ module Interview
       raise ArgumentError, "summary must be a string" unless summary.nil? || summary.is_a?(String)
       raise ArgumentError, "stronger_answer must be a non-empty string" unless stronger_answer.is_a?(String) && stronger_answer.present?
       raise ArgumentError, "evaluator_type must be a non-empty string" unless evaluator_type.is_a?(String) && evaluator_type.present?
+      raise ArgumentError, "evaluator_model must be a string" unless evaluator_model.nil? || evaluator_model.is_a?(String)
       REQUIRED_ARRAYS.each do |field|
         value = public_send(field)
         raise ArgumentError, "#{field} must be an array" unless value.is_a?(Array)

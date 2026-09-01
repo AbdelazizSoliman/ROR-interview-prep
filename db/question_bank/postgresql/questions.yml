@@ -30,15 +30,20 @@ questions:
     active: true
     position: 0
     concepts:
-      - concept: PostgreSQL uses a cost-based planner.
+      - stable_key: postgresql_uses_a_cost_based_planner
+        concept: PostgreSQL uses a cost-based planner.
         weight: 1.5
-      - concept: Low-selectivity predicates can favor sequential access.
+      - stable_key: low_selectivity_predicates_can_favor_sequential
+        concept: Low-selectivity predicates can favor sequential access.
         weight: 1.5
-      - concept: Statistics drive row-count and cost estimates.
+      - stable_key: statistics_drive_row_count_and_cost_estimates
+        concept: Statistics drive row-count and cost estimates.
         weight: 1
-      - concept: Heap access and page locality affect index-scan cost.
+      - stable_key: heap_access_and_page_locality_affect_index_scan
+        concept: Heap access and page locality affect index-scan cost.
         weight: 1
-      - concept: Planner switches are diagnostic tools, not durable fixes.
+      - stable_key: planner_switches_are_diagnostic_tools_not_durabl
+        concept: Planner switches are diagnostic tools, not durable fixes.
         weight: 1
     follow_ups:
       - stable_key: postgresql.plans.explain_vs_explain_analyze
@@ -68,15 +73,20 @@ questions:
     active: true
     position: 1
     concepts:
-      - concept: EXPLAIN reports planner estimates without executing the statement.
+      - stable_key: explain_reports_planner_estimates_without_execut
+        concept: EXPLAIN reports planner estimates without executing the statement.
         weight: 1
-      - concept: ANALYZE executes and reports actual rows, loops, and time.
+      - stable_key: analyze_executes_and_reports_actual_rows_loops_a
+        concept: ANALYZE executes and reports actual rows, loops, and time.
         weight: 1.5
-      - concept: Estimated-versus-actual cardinality reveals planner misestimation.
+      - stable_key: estimated_versus_actual_cardinality_reveals_plan
+        concept: Estimated-versus-actual cardinality reveals planner misestimation.
         weight: 1.5
-      - concept: Data-changing statements and expensive reads require operational care.
+      - stable_key: data_changing_statements_and_expensive_reads_req
+        concept: Data-changing statements and expensive reads require operational care.
         weight: 1
-      - concept: BUFFERS exposes shared and temporary block activity.
+      - stable_key: buffers_exposes_shared_and_temporary_block_activ
+        concept: BUFFERS exposes shared and temporary block activity.
         weight: 1
     follow_ups: []
 
@@ -104,15 +114,20 @@ questions:
     active: true
     position: 2
     concepts:
-      - concept: Leading-column predicates define the usable B-tree search range.
+      - stable_key: leading_column_predicates_define_the_usable_b_tr
+        concept: Leading-column predicates define the usable B-tree search range.
         weight: 1.5
-      - concept: Equality predicates usually compose before the first range predicate.
+      - stable_key: equality_predicates_usually_compose_before_the_f
+        concept: Equality predicates usually compose before the first range predicate.
         weight: 1.5
-      - concept: Index order can satisfy ORDER BY and LIMIT access patterns.
+      - stable_key: index_order_can_satisfy_order_by_and_limit_acces
+        concept: Index order can satisfy ORDER BY and LIMIT access patterns.
         weight: 1
-      - concept: INCLUDE columns cover output but are not search keys.
+      - stable_key: include_columns_cover_output_but_are_not_search
+        concept: INCLUDE columns cover output but are not search keys.
         weight: 1
-      - concept: Index design must be validated against workload and write cost.
+      - stable_key: index_design_must_be_validated_against_workload
+        concept: Index design must be validated against workload and write cost.
         weight: 1
     follow_ups:
       - stable_key: postgresql.indexes.index_scan_not_guaranteed

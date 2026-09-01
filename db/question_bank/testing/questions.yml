@@ -30,14 +30,19 @@ questions:
     active: true
     position: 0
     concepts:
-      - concept: Assert observable behavior rather than incidental call sequences.
+      - stable_key: assert_observable_behavior_rather_than_incidenta
+        concept: Assert observable behavior rather than incidental call sequences.
         weight: 1.5
-      - concept: Doubles are most valuable at unstable or external boundaries.
+      - stable_key: doubles_are_most_valuable_at_unstable_or_externa
+        concept: Doubles are most valuable at unstable or external boundaries.
         weight: 1
-      - concept: Verifying doubles reduce interface drift.
+      - stable_key: verifying_doubles_reduce_interface_drift
+        concept: Verifying doubles reduce interface drift.
         weight: 1
-      - concept: Integration and contract tests validate real boundary assumptions.
+      - stable_key: integration_and_contract_tests_validate_real_bou
+        concept: Integration and contract tests validate real boundary assumptions.
         weight: 1.5
-      - concept: A balanced test pyramid localizes failures while preserving confidence.
+      - stable_key: a_balanced_test_pyramid_localizes_failures_while
+        concept: A balanced test pyramid localizes failures while preserving confidence.
         weight: 1
     follow_ups: []

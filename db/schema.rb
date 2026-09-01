@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_01_154717) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_01_170100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -28,6 +28,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_154717) do
     t.bigint "answer_attempt_id", null: false
     t.datetime "created_at", null: false
     t.datetime "evaluated_at", null: false
+    t.string "evaluator_model"
     t.string "evaluator_type", null: false
     t.jsonb "matched_concepts", default: [], null: false
     t.jsonb "misconceptions", default: [], null: false
@@ -49,8 +50,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_154717) do
     t.text "explanation"
     t.integer "position", default: 0, null: false
     t.bigint "question_id", null: false
+    t.string "stable_key", null: false
     t.datetime "updated_at", null: false
     t.decimal "weight", precision: 6, scale: 2, default: "1.0", null: false
+    t.index ["question_id", "stable_key"], name: "index_question_concepts_on_question_id_and_stable_key", unique: true
     t.index ["question_id"], name: "index_question_concepts_on_question_id"
     t.check_constraint "\"position\" >= 0", name: "question_concepts_position_nonnegative"
     t.check_constraint "weight > 0::numeric", name: "question_concepts_weight_positive"

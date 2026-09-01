@@ -30,15 +30,20 @@ questions:
     active: true
     position: 0
     concepts:
-      - concept: Background delivery should be treated as at least once.
+      - stable_key: background_delivery_should_be_treated_as_at_leas
+        concept: Background delivery should be treated as at least once.
         weight: 1.5
-      - concept: Stable idempotency keys identify one logical operation.
+      - stable_key: stable_idempotency_keys_identify_one_logical_ope
+        concept: Stable idempotency keys identify one logical operation.
         weight: 1.5
-      - concept: Database constraints make conditional state transitions race-safe.
+      - stable_key: database_constraints_make_conditional_state_tran
+        concept: Database constraints make conditional state transitions race-safe.
         weight: 1
-      - concept: External side effects require provider keys or reconciliation.
+      - stable_key: external_side_effects_require_provider_keys_or_r
+        concept: External side effects require provider keys or reconciliation.
         weight: 1.5
-      - concept: Outbox patterns close the database-to-queue publication gap.
+      - stable_key: outbox_patterns_close_the_database_to_queue_publ
+        concept: Outbox patterns close the database-to-queue publication gap.
         weight: 1
     follow_ups: []
 
@@ -66,15 +71,20 @@ questions:
     active: true
     position: 1
     concepts:
-      - concept: Tenant context must be explicit in requests and asynchronous work.
+      - stable_key: tenant_context_must_be_explicit_in_requests_and
+        concept: Tenant context must be explicit in requests and asynchronous work.
         weight: 1.5
-      - concept: Queries should originate from tenant-scoped associations or repositories.
+      - stable_key: queries_should_originate_from_tenant_scoped_asso
+        concept: Queries should originate from tenant-scoped associations or repositories.
         weight: 1.5
-      - concept: Constraints and keys should include tenant identity where appropriate.
+      - stable_key: constraints_and_keys_should_include_tenant_ident
+        concept: Constraints and keys should include tenant identity where appropriate.
         weight: 1
-      - concept: Row-level security can provide defense in depth.
+      - stable_key: row_level_security_can_provide_defense_in_depth
+        concept: Row-level security can provide defense in depth.
         weight: 1
-      - concept: Connection pools require careful tenant-context cleanup.
+      - stable_key: connection_pools_require_careful_tenant_context
+        concept: Connection pools require careful tenant-context cleanup.
         weight: 1
     follow_ups:
       - stable_key: active_record.transactions.rollback_behavior
